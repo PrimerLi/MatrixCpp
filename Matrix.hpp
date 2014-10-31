@@ -9,7 +9,8 @@ class Matrix
     private:
 	int dimension;
 	type **matrix;
-	type determinant(Matrix<type> &upperTriangle) const;
+	type determinant(Matrix<type> &upperTriangle) const;	
+	void checkBounds(int i) const;
     public:
 	Matrix();
 	explicit Matrix(int dimension);
@@ -23,7 +24,6 @@ class Matrix
 	Matrix<type> operator- (const Matrix<type> &parameter) const;
 	Matrix<type> operator* (const Matrix<type> &parameter) const;
 	Matrix<type> operator* (type factor) const;
-	void checkBounds(int i) const;
 	type operator() (int i, int j) const;
 	type& operator() (int i, int j);
 	void QRDecomposition(Matrix<type> &Q, Matrix<type> &R) const;
@@ -31,6 +31,8 @@ class Matrix
 	Matrix<type> inverse() const;
 	Matrix<type> Hermite() const;
 	Matrix<type> QRIteration() const;
+	type cofactor(int i, int j) const;
+	Matrix<type> adjugate() const;
 	template <typename T>
 	friend std::ostream & operator<< (std::ostream &os, const Matrix<T> &parameter);
 };
@@ -529,6 +531,56 @@ Matrix<type> Matrix<type>::QRIteration() const
 	iteration++;
     }
     return A;
+}
+
+template<typename type>
+type Matrix<type>::cofactor(int i, int j) const
+{
+    this->checkBounds(i);
+    this->checkBounds(j);
+    Matrix<type> cofactorMatrix(dimension - 1);
+    for (int row = 0; row < i; ++row)
+    {
+	for (int col = 0; col < j; ++col)
+	{
+	    cofactorMatrix(row, col) = matrix[row][col];
+	}
+    }
+    for (int row = i + 1; row < dimension; ++row)
+    {
+	for (int col = j + 1; col < dimension; ++col)
+	{
+	    cofactorMatrix(row-1, col-1) = matrix[row][col];
+	}
+    }
+    for (int row = 0; row < i; ++row)
+    {
+	for (int col = j + 1; col < dimension; ++col)
+	{
+	    cofactorMatrix(row, col - 1) = matrix[row][col];
+	}
+    }
+    for (int row = i + 1; row < dimension; ++row)
+	for (int col = 0; col < j; ++col)
+	    cofactorMatrix(row-1, col) = matrix[row][col];
+    if ((i + j)%2 == 0)
+	return cofactorMatrix.determinant();
+    else
+	return -cofactorMatrix.determinant();
+}
+
+template<typename type>
+Matrix<type> Matrix<type>::adjugate() const
+{
+    Matrix<type> adj(dimension);
+    for (int i = 0; i < dimension; ++i)
+    {
+	for (int j = 0; j < dimension; ++j)
+	{
+	    adj(i, j) = this->cofactor(j, i);
+	}
+    }
+    return adj;
 }
 
 template <typename T>
