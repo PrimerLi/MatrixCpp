@@ -30,6 +30,7 @@ class Matrix
 	type determinant() const;
 	Matrix<type> inverse() const;
 	Matrix<type> Hermite() const;
+	Matrix<type> QRIteration() const;
 	template <typename T>
 	friend std::ostream & operator<< (std::ostream &os, const Matrix<T> &parameter);
 };
@@ -190,7 +191,6 @@ Matrix<type> Matrix<type>::operator+ (const Matrix<type> &parameter) const
 	std::exit(-1);
     }
 
-    this->dimension = parameter.dimension;
     Matrix<type> temp(dimension);
     for (int i = 0; i < dimension; ++i)
     {
@@ -511,6 +511,24 @@ Matrix<double> Matrix<double>::Hermite() const
 	}
     }
     return temp;
+}
+
+template<typename type>
+Matrix<type> Matrix<type>::QRIteration() const
+{
+    const int iterationMax = 100;
+    Matrix<type> Q(dimension);
+    Matrix<type> R(dimension);
+    Matrix<type> A(dimension);
+    int iteration = 0;
+    this->QRDecomposition(Q, R);
+    while(iteration < iterationMax)
+    {
+	A = R*Q;
+	A.QRDecomposition(Q, R);
+	iteration++;
+    }
+    return A;
 }
 
 template <typename T>
