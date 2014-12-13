@@ -2,7 +2,9 @@
 #define MATRIX_H
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 #include "Vector.hpp"
+#include "Complex.hpp"
 template <typename type>
 class Matrix
 {
@@ -31,6 +33,7 @@ class Matrix
 	Matrix<type> inverse() const;
 	Matrix<type> Hermite() const;
 	Matrix<type> QRIteration() const;
+	Vector<Complex> eigenvalues() const;
 	type cofactor(int i, int j) const;
 	Matrix<type> adjugate() const;
 	template <typename T>
@@ -532,6 +535,54 @@ Matrix<type> Matrix<type>::QRIteration() const
     }
     return A;
 }
+
+template<typename type> 
+Vector<Complex> Matrix<type>::eigenvalues() const
+{
+    Vector<Complex> eigenvector(dimension);
+    Matrix<type> result = this->QRIteration();
+    int row = 0;
+    double epsilon = 0.0000000001;
+    while (row < dimension - 1)
+    {
+	if (fabs(result.matrix[row+1][row]) < epsilon)
+	{
+	    eigenvector[row] = result.matrix[row][row];
+	    row = row + 1;
+	}
+	else
+	{
+	    type a = result.matrix[row][row];
+	    type b = result.matrix[row][row + 1];
+	    type c = result.matrix[row + 1][row];
+	    type d = result.matrix[row + 1][row + 1];
+	    type trace = a + d;
+	    type det = a*d - b*c;
+	    eigenvector[row] = 0.5*trace + sqrt(Complex(0.25*trace*trace - det));
+	    eigenvector[row+1] = 0.5*trace - sqrt(Complex(0.25*trace*trace - det));
+	    row = row + 2;
+	}
+	if (row == dimension - 1)
+	{
+	    eigenvector[row] = result.matrix[row][row];
+	}
+    }
+    return eigenvector;
+}
+
+/*
+template<>
+Vector<Complex> Matrix<Complex>::eigenvalues() const
+{
+    Vector<Complex> eigenvector(dimension);
+    Matrix<Complex> result = this->QRIteration();
+    for (int i = 0; i < dimension; ++i)
+    {
+	eigenvector[i] = result.matrix[i][i];
+    }
+    return eigenvector;
+}
+*/
 
 template<typename type>
 type Matrix<type>::cofactor(int i, int j) const

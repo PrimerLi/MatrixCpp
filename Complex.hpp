@@ -45,6 +45,8 @@ class Complex
 	friend Complex operator- (double a, const Complex &parameter);
 	friend Complex operator- (const Complex &parameter);
 	friend Complex operator/ (double a, const Complex &parameter);
+	friend double fabs(const Complex &parameter);
+	friend Complex sqrt(const Complex &parameter);
 };
 
 Complex::Complex()
@@ -247,5 +249,19 @@ Complex operator- (const Complex &parameter)
 Complex operator/ (double a, const Complex &parameter)
 {
     return Complex(a, 0)/parameter;
+}
+
+double fabs(const Complex &parameter)
+{
+    return parameter.norm();
+}
+
+Complex sqrt(const Complex &parameter)
+{
+    double theta = parameter.argument();
+    double magnitude = parameter.norm();
+    double x = sqrt(magnitude)*cos(0.5*theta);
+    double y = sqrt(magnitude)*sin(0.5*theta);
+    return Complex(x, y);
 }
 #endif
