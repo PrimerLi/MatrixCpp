@@ -20,6 +20,7 @@ class Vector
 	void setLength(int length);
 	int getLength() const;
 	const Vector<type> & operator= (const Vector<type> &parameter);
+	const Vector<type> & operator= (const type &parameter);
 	Vector<type> operator+ (const Vector<type> &parameter) const;
 	Vector<type> operator- (const Vector<type> &parameter) const;
 	void checkBounds(int i) const;
@@ -132,6 +133,16 @@ const Vector<type> & Vector<type>::operator= (const Vector<type> &parameter)
     for (int i = 0; i < length; ++i)
     {
 	array[i] = parameter.array[i];
+    }
+    return *this;
+}
+
+template<typename type>
+const Vector<type> & Vector<type>::operator= (const type &parameter)
+{
+    for (int i = 0; i < length; ++i)
+    {
+	array[i] = parameter;
     }
     return *this;
 }
