@@ -26,6 +26,7 @@ class Matrix
 	Matrix<type> operator- (const Matrix<type> &parameter) const;
 	Matrix<type> operator* (const Matrix<type> &parameter) const;
 	Matrix<type> operator* (type factor) const;
+	Vector<type> operator* (const Vector<type> &parameter) const;
 	type operator() (int i, int j) const;
 	type& operator() (int i, int j);
 	void QRDecomposition(Matrix<type> &Q, Matrix<type> &R) const;
@@ -266,6 +267,28 @@ Matrix<type> Matrix<type>::operator* (type factor) const
 }
 
 template<typename type>
+Vector<type> Matrix<type>::operator* (const Vector<type> &parameter) const
+{
+    if (this->dimension != parameter.getLength())
+    {
+	std::cout << "Dimension incompatible. " << std::endl;
+	std::exit(-1);
+    }
+    Vector<type> temp(dimension);
+    type s = 0;
+    for (int i = 0; i < dimension; ++i)
+    {
+	s = 0;
+	for (int j = 0; j < dimension; ++j)
+	{
+	    s = s + matrix[i][j]*parameter[j];
+	}
+	temp[i] = s;
+    }
+    return temp;
+}
+
+template<typename type>
 void Matrix<type>::checkBounds(int i) const
 {
     if (i < 0 || i >= dimension)
@@ -437,7 +460,7 @@ Matrix<type> Matrix<type>::inverse() const
 {
     Matrix<type> upperTriangle(dimension);
     type det = this->determinant(upperTriangle);
-    if (det == 0)
+    if (fabs(det) < 0.000000001)
     {
 	std::cout << "This matrix is not invertible. " << std::endl;
 	std::exit(-1);
